@@ -258,11 +258,10 @@ int main(int argc, char* argv[]) {
 
   g_appStartupTime = time(NULL);
 
-  gtk_init(&argc, &argv);
   CefRefPtr<ClientApp> app(new ClientApp);
 
   // Execute the secondary process, if any.
-  int exit_code = CefExecuteProcess(main_args, app.get(), NULL);
+  int exit_code = CefExecuteProcess(main_args, app, NULL);
   if (exit_code >= 0)
     return exit_code;
 
@@ -313,7 +312,11 @@ int main(int argc, char* argv[]) {
   startNodeProcess();
 
   // Initialize CEF.
-  CefInitialize(main_args, settings, app.get(), NULL);
+  CefInitialize(main_args, settings, app, NULL);
+
+  // The Chromium sandbox requires that there only be a single thread during
+  // initialization. Therefore initialize GTK after CEF.
+  gtk_init(&argc, &argv);
 
   // Set window icon
   std::vector<std::string> icons(APPICONS, APPICONS + sizeof (APPICONS) / sizeof (APPICONS[0]));
